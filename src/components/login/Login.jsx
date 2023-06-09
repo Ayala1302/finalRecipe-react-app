@@ -6,9 +6,17 @@ import axios from "axios";
 import cookie from "cookie";
 import { useNavigate } from "react-router-dom";
 
-function Login({state}) {
-  const navigate = useNavigate()
-  const {loggedIn, setLoggedIn} = state
+function Login({ state }) {
+  const navigate = useNavigate();
+  const { loggedIn, setLoggedIn } = state;
+  const [newUser, setNewUser] = useState(false);
+  const [newUserBody, setNewUserBody] = useState({
+    username: "",
+    password: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+  });
   const [body, setBody] = useState({
     username: "",
     password: "",
@@ -16,6 +24,12 @@ function Login({state}) {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+    if (newUser) {
+      return setNewUserBody({
+        ...newUserBody,
+        [name]: value,
+      });
+    }
     setBody({
       ...body,
       [name]: value,
@@ -25,46 +39,135 @@ function Login({state}) {
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log("form submitted");
+    if (newUser) {
+      return axios
+        .post("https://home-chef-server.vercel.app/create-user", newUserBody)
+        .then((results) => {
+          console.log(results);
+          // console.log(results);
+          document.cookie = cookie.serialize("token", results.data.token);
+          setLoggedIn(true);
+          navigate("/");
+        });
+    }
     axios
       .post("https://home-chef-server.vercel.app/log-in", body)
       .then((results) => {
         console.log(results);
         document.cookie = cookie.serialize("token", results.data.token);
-        setLoggedIn(true)
-        navigate('/')
+        setLoggedIn(true);
+        navigate("/");
       });
   };
 
   useEffect(() => {
-    console.log(body);
-  }, [body]);
+    console.log(newUserBody);
+  }, [newUserBody]);
 
   return (
     <div className={classes["login-container"]}>
-      <form className={classes["login-form"]} onSubmit={handleSubmit}>
-        <TextField
-          name="username"
-          value={body.username}
-          onChange={handleChange}
-          required
-          id="username"
-          label="Username"
-          variant="filled"
-        />
-        <TextField
-          name="password"
-          value={body.password}
-          onChange={handleChange}
-          required
-          id="password"
-          label="Password"
-          type="password"
-          variant="filled"
-        />
-        <Button type="submit" variant="contained">
-          Login
-        </Button>
-      </form>
+      {newUser ? (
+        <form className={classes["login-form"]} onSubmit={handleSubmit}>
+          <TextField
+            name="first_name"
+            value={newUserBody.first_name}
+            onChange={handleChange}
+            required
+            id="first_name"
+            label="First Name"
+            variant="filled"
+          />
+          <TextField
+            name="last_name"
+            value={newUserBody.last_name}
+            onChange={handleChange}
+            required
+            id="last_name"
+            label="Last Name"
+            variant="filled"
+          />
+          <TextField
+            name="email"
+            value={newUserBody.email}
+            onChange={handleChange}
+            required
+            id="email"
+            label="Email"
+            variant="filled"
+          />
+
+          <TextField
+            name="username"
+            value={newUserBody.username}
+            onChange={handleChange}
+            required
+            id="username"
+            label="Username"
+            variant="filled"
+          />
+          <TextField
+            name="password"
+            value={newUserBody.password}
+            onChange={handleChange}
+            required
+            id="password"
+            label="Password"
+            type="password"
+            variant="filled"
+          />
+          <Button type="submit" variant="contained">
+            Sign Up
+          </Button>
+        </form>
+      ) : (
+        <form className={classes["login-form"]} onSubmit={handleSubmit}>
+          <TextField
+            name="username"
+            value={body.username}
+            onChange={handleChange}
+            required
+            id="username"
+            label="Username"
+            variant="filled"
+          />
+          <TextField
+            name="password"
+            value={body.password}
+            onChange={handleChange}
+            required
+            id="password"
+            label="Password"
+            type="password"
+            variant="filled"
+          />
+          <Button type="submit" variant="contained">
+            Login
+          </Button>
+        </form>
+      )}
+      {newUser ? (
+        <>
+          <h4 className={classes["new-user"]}>Already have an account?</h4>
+          <Button
+            color="secondary"
+            onClick={() => setNewUser(false)}
+            variant="contained"
+          >
+            Log in
+          </Button>
+        </>
+      ) : (
+        <>
+          <h4 className={classes["new-user"]}>New User? </h4>
+          <Button
+            color="secondary"
+            onClick={() => setNewUser(true)}
+            variant="contained"
+          >
+            sign up
+          </Button>
+        </>
+      )}
     </div>
   );
 }

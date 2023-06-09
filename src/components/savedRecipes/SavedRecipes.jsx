@@ -7,6 +7,7 @@ import classes from "../categories/categories.module.css";
 
 function SavedRecipes({ state }) {
   const { loggedIn, setLoggedIn } = state;
+  const [loaded, setLoaded] = useState(false);
   const [myRecipes, setMyRecipes] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
@@ -24,21 +25,31 @@ function SavedRecipes({ state }) {
       .then((results) => {
         console.log(results, "*");
         setMyRecipes(results.data.rows);
+        setLoaded(true);
       });
   }, []);
 
   useEffect(() => {
-    console.log(myRecipes);
+    console.log(myRecipes, "effect my recipes");
   }, [myRecipes]);
 
+  if (myRecipes.length === 0 && loaded) {
+    return <h3 style={{ textAlign: "center", marginTop: 40 }}>Oops... No saved Recipes</h3>;
+  }
+
   if (myRecipes.length === 0) {
-    return <div>Loading...</div>;
+    return <h3 style={{ textAlign: "center", marginTop: 40 }}>Loading...</h3>;
   }
 
   return (
     <div className={classes.recipes}>
-      {myRecipes.map((recipe) => (
-        <MyRecipeCard recipe={recipe} />
+      {myRecipes.map((recipe, i) => (
+        <MyRecipeCard
+          recipe={recipe}
+          setMyRecipes={setMyRecipes}
+          myRecipes={myRecipes}
+          index={i}
+        />
       ))}
     </div>
   );
