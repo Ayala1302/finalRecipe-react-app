@@ -1,42 +1,63 @@
-import React from 'react'
-import { useEffect } from 'react'
-import { useState } from 'react'
-import classes from './categories.module.css'
-import { Link } from 'react-router-dom'
+import React from "react";
+import { useEffect } from "react";
+import { useState } from "react";
+import classes from "./categories.module.css";
+import { Link } from "react-router-dom";
+import { Button } from "@mui/material";
+import axios from "axios";
+import cookie from "cookie";
 
 const Categories = () => {
-    const URL_CATEGORIES = "https://www.themealdb.com/api/json/v1/1/categories.php"
-    const URL_RECIPES = "https://www.themealdb.com/api/json/v1/1/filter.php?c="
-    const [categories, setCategories] = useState([])
-    const [activeCategory, setActiveCategory] = useState("")
-    const [recipes, setRecipes] = useState([])
+    const URL_CATEGORIES =
+        "https://www.themealdb.com/api/json/v1/1/categories.php";
+    const URL_RECIPES = "https://www.themealdb.com/api/json/v1/1/filter.php?c=";
+    const [categories, setCategories] = useState([]);
+    const [activeCategory, setActiveCategory] = useState("");
+    const [recipes, setRecipes] = useState([]);
+
+    const handleSaveRecipe = (id) => {
+        const cookies = cookie.parse(document.cookie);
+        console.log(id);
+        console.log(cookies);
+        axios
+            .post(
+                "https://home-chef-server.vercel.app/save-recipe",
+                { recipe_id: id },
+                {
+                    headers: {
+                        Authorization: `Bearer ${cookies.token}`,
+                    },
+                }
+            )
+            .then((results) => console.log(results));
+    };
 
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const res = await fetch(URL_CATEGORIES)
-                const data = await res.json()
-                setCategories(data.categories.slice(0, 9))
-                setActiveCategory(data.categories[0].strCategory)
+                const res = await fetch(URL_CATEGORIES);
+                const data = await res.json();
+                setCategories(data.categories.slice(0, 9));
+                setActiveCategory(data.categories[0].strCategory);
             } catch (error) {
-                console.error(error)
+                console.error(error);
             }
-        }
-        fetchCategories()
-    }, [])
+        };
+        fetchCategories();
+    }, []);
 
     useEffect(() => {
         const fetchRecipes = async () => {
             try {
-                const res = await fetch(`${URL_RECIPES}${activeCategory}`)
-                const data = await res.json()
-                setRecipes(data.meals.slice(0, 11))
+                const res = await fetch(`${URL_RECIPES}${activeCategory}`);
+                const data = await res.json();
+                setRecipes(data.meals.slice(0, 11));
             } catch (error) {
-                console.error(error)
+                console.error(error);
             }
-        }
-        activeCategory && fetchRecipes()
-    }, [activeCategory])
+        };
+        activeCategory && fetchRecipes();
+    }, [activeCategory]);
 
     return (
         <div className={classes.container}>
@@ -49,9 +70,10 @@ const Categories = () => {
                     {categories?.map((category) => (
                         <div
                             onClick={() => setActiveCategory(category.strCategory)}
-                            className={`${classes.category} ${activeCategory === category.strCategory && classes.active}`}
-                            key={category.idCategory}>
-
+                            className={`${classes.category} ${activeCategory === category.strCategory && classes.active
+                                }`}
+                            key={category.idCategory}
+                        >
                             {category.strCategory}
                         </div>
                     ))}
@@ -59,16 +81,25 @@ const Categories = () => {
                 <div className={classes.recipes}>
                     {recipes?.map((recipe) => (
                         <div key={recipe.idMeal} className={classes.recipe}>
-                            <Link to={`/recipe/${recipe.idMeal}`} className={classes.imgContainer}>
+                            <Link
+                                to={`/recipe/${recipe.idMeal}`}
+                                className={classes.imgContainer}
+                            >
                                 <img src={recipe.strMealThumb} />
                             </Link>
                             <h3>{recipe.strMeal}</h3>
+                            <Button
+                                onClick={() => handleSaveRecipe(recipe.idMeal)}
+                                variant="contained"
+                            >
+                                Save Recipe
+                            </Button>
                         </div>
                     ))}
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Categories
+export default Categories;
