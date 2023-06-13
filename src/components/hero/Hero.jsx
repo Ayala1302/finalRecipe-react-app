@@ -74,10 +74,6 @@ const Hero = () => {
             You've come to the right place for some tasty recipes
           </p>
           <p className={classes.secondDesc}>Just see what we have for you</p>
-          <div className={classes.buttons}>
-            <button>Get Started</button>
-            <button>Explore recipes</button>
-          </div>
         </div>
         <div className={classes.right}>
           <img src={meal?.strMealThumb} />

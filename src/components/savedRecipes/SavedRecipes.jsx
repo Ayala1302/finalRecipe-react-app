@@ -34,7 +34,11 @@ function SavedRecipes({ state }) {
   }, [myRecipes]);
 
   if (myRecipes.length === 0 && loaded) {
-    return <h3 style={{ textAlign: "center", marginTop: 40 }}>Oops... No saved Recipes</h3>;
+    return (
+      <h3 style={{ textAlign: "center", marginTop: 40 }}>
+        Oops... No saved Recipes
+      </h3>
+    );
   }
 
   if (myRecipes.length === 0) {

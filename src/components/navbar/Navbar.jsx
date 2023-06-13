@@ -61,10 +61,10 @@ const Navbar = ({ state }) => {
           </Button>
           )}
         </ul>
-        <div className={classes.right}>
+        {/* <div className={classes.right}>
           <input type="text" placeholder="Search..." />
           <AiOutlineSearch />
-        </div>
+        </div> */}
       </div>
     </div>
   );
